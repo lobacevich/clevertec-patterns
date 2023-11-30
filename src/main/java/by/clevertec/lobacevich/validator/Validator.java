@@ -2,13 +2,11 @@ package by.clevertec.lobacevich.validator;
 
 import by.clevertec.lobacevich.data.UserDto;
 import by.clevertec.lobacevich.exception.ValidationException;
-import org.aspectj.lang.annotation.Aspect;
 
 import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Aspect
 public class Validator {
 
     public static final Validator INSTANCE = new Validator();
@@ -22,20 +20,21 @@ public class Validator {
         return INSTANCE;
     }
 
-    public static void validateToCreate(UserDto userDto) {
+    public void validateToCreate(UserDto userDto) {
         if (userDto.getId() != null) {
             throw new ValidationException("Validation error: id must be null");
         }
+        validateFields(userDto);
     }
 
-    public static void validateToUpdate(UserDto userDto) {
+    public void validateToUpdate(UserDto userDto) {
         if (userDto.getId() == null) {
             throw new ValidationException("Validation error: id must be null");
         }
         validateFields(userDto);
     }
 
-    private static void validateFields(UserDto userDto) {
+    private void validateFields(UserDto userDto) {
         String firstName = userDto.getFirstname();
         if (firstName == null || firstName.length() < 2) {
             throw new ValidationException("Validation error: incorrect first name");

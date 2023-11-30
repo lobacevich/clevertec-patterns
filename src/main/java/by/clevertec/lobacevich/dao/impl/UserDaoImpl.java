@@ -1,5 +1,6 @@
-package by.clevertec.lobacevich.dao;
+package by.clevertec.lobacevich.dao.impl;
 
+import by.clevertec.lobacevich.dao.UserDao;
 import by.clevertec.lobacevich.entity.User;
 import by.clevertec.lobacevich.exception.DataBaseException;
 
@@ -31,12 +32,11 @@ public class UserDaoImpl implements UserDao {
             ps.setObject(3, user.getDateOfBirth());
             ps.setString(4, user.getEmail());
             ps.executeUpdate();
-            try(ResultSet generatedKeys = ps.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     user.setId(generatedKeys.getLong(1));
                     return user;
-                }
-                else {
+                } else {
                     throw new DataBaseException("DB failed: Can't get generated key");
                 }
             }
@@ -53,7 +53,10 @@ public class UserDaoImpl implements UserDao {
             ps.setObject(3, user.getDateOfBirth());
             ps.setString(4, user.getEmail());
             ps.setLong(5, user.getId());
-            ps.executeUpdate();
+            if (ps.executeUpdate() == 0) {
+                throw new DataBaseException("Bad request: User with id " +
+                        user.getId() + " not found");
+            }
         } catch (SQLException e) {
             throw new DataBaseException("DB failed: Can't update user");
         }
@@ -87,7 +90,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAllUsers(Connection connection) {
         List<User> users = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(GET_ALL)){
+        try (PreparedStatement ps = connection.prepareStatement(GET_ALL)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 User user = resultSetToUser(rs);

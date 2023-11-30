@@ -6,15 +6,11 @@ import by.clevertec.lobacevich.cache.impl.LRUCache;
 import by.clevertec.lobacevich.data.UserDto;
 import by.clevertec.lobacevich.entity.User;
 import by.clevertec.lobacevich.exception.YamlReaderException;
-import by.clevertec.lobacevich.mapper.UserMapper;
-import by.clevertec.lobacevich.mapper.UserMapperImpl;
 import by.clevertec.lobacevich.util.YamlReader;
 import by.clevertec.lobacevich.validator.Validator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 
 import java.util.Optional;
 
@@ -34,7 +30,7 @@ public class AspectJConfig {
         }
     }
 
-    @Around("execution(* by.clevertec.lobacevich.dao.UserDaoImpl.findUserById(..))")
+    @Around("execution(* by.clevertec.lobacevich.dao.impl.UserDaoImpl.findUserById(..))")
     public Object findById(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         User cacheUser = cache.getById((Long) args[0]);
@@ -46,21 +42,21 @@ public class AspectJConfig {
 
     }
 
-    @Around("execution(* by.clevertec.lobacevich.dao.UserDaoImpl.createUser(..))")
+    @Around("execution(* by.clevertec.lobacevich.dao.impl.UserDaoImpl.createUser(..))")
     public Object daoCreateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
         cache.put((User) result);
         return result;
     }
 
-    @Around("execution(* by.clevertec.lobacevich.dao.UserDaoImpl.updateUser(..))")
+    @Around("execution(* by.clevertec.lobacevich.dao.impl.UserDaoImpl.updateUser(..))")
     public Object daoUpdateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         cache.put((User) args[0]);
         return joinPoint.proceed();
     }
 
-    @Around("execution(* by.clevertec.lobacevich.dao.UserDaoImpl.deleteUser(..))")
+    @Around("execution(* by.clevertec.lobacevich.dao.impl.UserDaoImpl.deleteUser(..))")
     public Object daoDeleteUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         Object result = joinPoint.proceed();

@@ -1,8 +1,6 @@
 package by.clevertec.lobacevich.service.impl;
 
-import by.clevertec.lobacevich.cache.impl.UserTestData;
 import by.clevertec.lobacevich.dao.UserDao;
-import by.clevertec.lobacevich.data.UserDto;
 import by.clevertec.lobacevich.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

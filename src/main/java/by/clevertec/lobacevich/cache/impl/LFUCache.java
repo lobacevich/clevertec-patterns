@@ -89,6 +89,7 @@ public class LFUCache implements Cache {
         }
         return true;
     }
+
     private void findMinFrequency() {
         if (map.isEmpty()) {
             minFrequency = 0;

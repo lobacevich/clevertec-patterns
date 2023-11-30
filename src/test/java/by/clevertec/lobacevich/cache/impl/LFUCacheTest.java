@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LFUCacheTest {
 
-    LFUCache cache = new LFUCache();
+    private final LFUCache cache = new LFUCache();
 
     @Test
-    void getById() {
-        User expected = CasheTestData.getUser1();
+    void getByIdShouldGiveUserById() {
+        User expected = CacheTestData.getUser1();
         cache.put(expected);
 
         User actual = cache.getById(1L);
@@ -20,18 +20,18 @@ class LFUCacheTest {
     }
 
     @Test
-    void put() {
-        cache.put(CasheTestData.getUser1());
-        cache.put(CasheTestData.getUser2());
-        cache.put(CasheTestData.getUser3());
-        cache.put(CasheTestData.getUser4());
+    void putShouldRemoveFirstAddedUser() {
+        cache.put(CacheTestData.getUser1());
+        cache.put(CacheTestData.getUser2());
+        cache.put(CacheTestData.getUser3());
+        cache.put(CacheTestData.getUser4());
 
         assertNull(cache.getById(1L));
     }
 
     @Test
-    void delete() {
-        User user = CasheTestData.getUser1();
+    void deleteShouldDeleteUserById() {
+        User user = CacheTestData.getUser1();
         cache.put(user);
 
         cache.deleteById(1L);

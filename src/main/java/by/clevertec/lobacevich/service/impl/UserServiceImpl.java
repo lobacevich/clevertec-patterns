@@ -15,9 +15,9 @@ import java.util.Optional;
 
 public class UserServiceImpl implements UserService {
 
-    private static final Connection CONNECTION = Connect.getConnection();
-    private final UserDao dao = new UserDaoImpl();
-    private final UserMapper mapper = new UserMapperImpl();
+    private Connection connection = Connect.getConnection();
+    private UserDao dao = new UserDaoImpl();
+    private UserMapper mapper = new UserMapperImpl();
 
     /***
      * Преобразует userDto в User и передает в слой dao для записи в базу данных
@@ -26,16 +26,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto createUser(UserDto userDto) {
-        return mapper.toUserDto(dao.createUser(mapper.toUser(userDto), CONNECTION));
+        return mapper.toUserDto(dao.createUser(mapper.toUser(userDto), connection));
     }
 
     /***
      * Преобразует userDto в User и передает в слой dao для обновления записи в базе данных
      * @param userDto дто сущности User
+     * @return возвращает true в случае успешного обновления записи в базе данных, иначе false
      */
     @Override
-    public void updateUser(UserDto userDto) {
-        dao.updateUser(mapper.toUser(userDto), CONNECTION);
+    public boolean updateUser(UserDto userDto) {
+        return dao.updateUser(mapper.toUser(userDto), connection);
     }
 
     /***
@@ -45,11 +46,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean deleteUser(Long id) {
-        Optional<User> userOptional = dao.findUserById(id, CONNECTION);
+        Optional<User> userOptional = dao.findUserById(id, connection);
         if (userOptional.isEmpty()) {
             return false;
         } else {
-            dao.deleteUser(userOptional.get(), CONNECTION);
+            dao.deleteUser(userOptional.get(), connection);
             return true;
         }
     }
@@ -57,17 +58,12 @@ public class UserServiceImpl implements UserService {
     /***
      * вызывает в слое dao метод для поиска сущности с данным id, получает Optional данной сущности
      * @param id получает id сущности для поиска
-     * @return возвращае dto сущности с указанным id
+     * @return возвращае dto сущности с указанным id либо null, если сущность не найдена
      */
     @Override
     public UserDto findUserById(Long id) {
-        Optional<User> userOptional = dao.findUserById(id, CONNECTION);
-        if (userOptional.isEmpty()) {
-            System.out.println("User not found");
-            return null;
-        } else {
-            return mapper.toUserDto(userOptional.get());
-        }
+        Optional<User> userOptional = dao.findUserById(id, connection);
+        return userOptional.map(user -> mapper.toUserDto(user)).orElse(null);
     }
 
     /***
@@ -76,7 +72,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> getAll() {
-        return dao.findAllUsers(CONNECTION).stream()
+        return dao.findAllUsers(connection).stream()
                 .map(mapper::toUserDto)
                 .toList();
     }

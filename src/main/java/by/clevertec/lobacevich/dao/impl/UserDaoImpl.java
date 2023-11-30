@@ -25,7 +25,7 @@ public class UserDaoImpl implements UserDao {
     private static final String GET_ALL = "SELECT * FROM users ORDER BY id";
 
     @Override
-    public User createUser(User user, Connection connection) throws DataBaseException {
+    public User createUser(User user, Connection connection) {
         try (PreparedStatement ps = connection.prepareStatement(CREATE_USER, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getFirstname());
             ps.setString(2, user.getLastname());
@@ -46,24 +46,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateUser(User user, Connection connection) throws DataBaseException {
+    public boolean updateUser(User user, Connection connection) {
         try (PreparedStatement ps = connection.prepareStatement(UPDATE_USER)) {
             ps.setString(1, user.getFirstname());
             ps.setString(2, user.getLastname());
             ps.setObject(3, user.getDateOfBirth());
             ps.setString(4, user.getEmail());
             ps.setLong(5, user.getId());
-            if (ps.executeUpdate() == 0) {
-                throw new DataBaseException("Bad request: User with id " +
-                        user.getId() + " not found");
-            }
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DataBaseException("DB failed: Can't update user");
         }
     }
 
     @Override
-    public void deleteUser(User user, Connection connection) throws DataBaseException {
+    public void deleteUser(User user, Connection connection) {
         try (PreparedStatement ps = connection.prepareStatement(DELETE_USER)) {
             ps.setLong(1, user.getId());
             ps.executeUpdate();
@@ -73,7 +70,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Optional<User> findUserById(Long id, Connection connection) throws DataBaseException {
+    public Optional<User> findUserById(Long id, Connection connection) {
         try (PreparedStatement ps = connection.prepareStatement(GET_BY_ID)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();

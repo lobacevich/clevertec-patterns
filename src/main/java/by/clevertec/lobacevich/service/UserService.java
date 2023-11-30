@@ -8,7 +8,7 @@ public interface UserService {
 
     UserDto createUser(UserDto userDto);
 
-    void updateUser(UserDto userDto);
+    boolean updateUser(UserDto userDto);
 
     boolean deleteUser(Long id);
 

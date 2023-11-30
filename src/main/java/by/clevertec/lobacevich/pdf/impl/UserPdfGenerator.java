@@ -32,6 +32,9 @@ public class UserPdfGenerator implements PdfGenerator {
 
     @Override
     public void createPdf(UserDto userDto) {
+        if (userDto == null) {
+            return;
+        }
         createDirectoryIfNotExists();
         String outputPath = OUTPUT_PATH_PART + LocalDate.now() + "/user" + userDto.getId() + ".pdf";
         try (PdfWriter writer = new PdfWriter(outputPath);

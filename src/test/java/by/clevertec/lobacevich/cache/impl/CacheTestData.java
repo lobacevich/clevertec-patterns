@@ -4,7 +4,7 @@ import by.clevertec.lobacevich.entity.User;
 
 import java.time.LocalDate;
 
-public class CasheTestData {
+public class CacheTestData {
 
     public static User getUser1() {
         return User.builder()

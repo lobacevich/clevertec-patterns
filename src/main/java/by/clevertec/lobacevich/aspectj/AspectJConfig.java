@@ -6,7 +6,10 @@ import by.clevertec.lobacevich.cache.impl.LRUCache;
 import by.clevertec.lobacevich.data.UserDto;
 import by.clevertec.lobacevich.entity.User;
 import by.clevertec.lobacevich.exception.YamlReaderException;
+import by.clevertec.lobacevich.pdf.PdfGenerator;
+import by.clevertec.lobacevich.pdf.impl.UserPdfGenerator;
 import by.clevertec.lobacevich.util.YamlReader;
+import by.clevertec.lobacevich.validator.impl.UserDtoValidator;
 import by.clevertec.lobacevich.validator.Validator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,8 +20,9 @@ import java.util.Optional;
 @Aspect
 public class AspectJConfig {
 
-    private Cache cache = setCache();
-    private Validator validator = Validator.getINSTANCE();
+    private final Cache cache = setCache();
+    private final Validator validator = UserDtoValidator.getINSTANCE();
+    private final PdfGenerator pdfGenerator = UserPdfGenerator.getInstance();
 
     private Cache setCache() {
         if (YamlReader.getData().get("Cache.algorithm").equals("LRU")) {
@@ -68,13 +72,23 @@ public class AspectJConfig {
     public Object serviceCreateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         validator.validateToCreate((UserDto) args[0]);
-        return joinPoint.proceed();
+        Object result = joinPoint.proceed();
+        pdfGenerator.createPdf((UserDto) result);
+        return result;
     }
 
     @Around("execution(* by.clevertec.lobacevich.service.impl.UserServiceImpl.updateUser(..))")
     public Object serviceUpdateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         validator.validateToUpdate((UserDto) args[0]);
+        pdfGenerator.createPdf((UserDto) args[0]);
         return joinPoint.proceed();
+    }
+
+    @Around("execution(* by.clevertec.lobacevich.service.impl.UserServiceImpl.findUserById(..))")
+    public Object serviceFindUserById(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object result = joinPoint.proceed();
+        pdfGenerator.createPdf((UserDto) result);
+        return result;
     }
 }

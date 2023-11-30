@@ -14,8 +14,8 @@ import java.text.SimpleDateFormat;
 
 public class Main {
 
-    private static UserMapper mapper = new UserMapperImpl();
-    private static UserService userService = new UserServiceImpl();
+    private static final UserMapper MAPPER = new UserMapperImpl();
+    private static final UserService USER_SERVICE = new UserServiceImpl();
 
     public static void main(String[] args) throws JsonProcessingException {
         String json1 = "{\"id\":null,\"firstname\":\"Alex\",\"lastname\":\"Murfhy\",\"dateOfBirth\":\"1997-05-17\",\"email\":\"1234@gmail.com\"}";
@@ -30,14 +30,14 @@ public class Main {
 
     public static UserDto sendToCreate(String json) throws JsonProcessingException {
         ObjectMapper objectMapper = getObjectMapper();
-        UserDto dto = mapper.toUserDto(objectMapper.readValue(json, User.class));
-        return userService.createUser(dto);
+        UserDto dto = MAPPER.toUserDto(objectMapper.readValue(json, User.class));
+        return USER_SERVICE.createUser(dto);
     }
 
     public static void sendToUpdate(String json) throws JsonProcessingException {
         ObjectMapper objectMapper = getObjectMapper();
-        UserDto dto = mapper.toUserDto(objectMapper.readValue(json, User.class));
-        userService.updateUser(dto);
+        UserDto dto = MAPPER.toUserDto(objectMapper.readValue(json, User.class));
+        USER_SERVICE.updateUser(dto);
     }
 
     private static ObjectMapper getObjectMapper() {
@@ -47,5 +47,4 @@ public class Main {
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
-
 }

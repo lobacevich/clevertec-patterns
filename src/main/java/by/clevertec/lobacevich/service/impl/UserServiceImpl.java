@@ -15,9 +15,17 @@ import java.util.Optional;
 
 public class UserServiceImpl implements UserService {
 
+    public static final UserServiceImpl INSTANCE = new UserServiceImpl();
     private Connection connection = Connect.getConnection();
-    private UserDao dao = new UserDaoImpl();
+    private UserDao dao = UserDaoImpl.getInstance();
     private UserMapper mapper = new UserMapperImpl();
+
+    private UserServiceImpl() {
+    }
+
+    public static UserServiceImpl getInstance() {
+        return INSTANCE;
+    }
 
     /***
      * Преобразует userDto в User и передает в слой dao для записи в базу данных

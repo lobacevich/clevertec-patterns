@@ -6,3 +6,6 @@
 (при ее отсутствии). Метод для создания pdf вызывается после вызова методов сервиса findUserById,
 createUser и updateUser. В структуре названия файла есть id объекта User. Если в директории уже
 присутствует информация о User с таким же id, то данный файл перезаписывается.</p>
+<p>Использовались следующие паттерны: singleton(UserDaoImpl, UserServiceImpl, 
+UserPdfGenerator и UserDtoValidator), builder(User, UserDto) и factory
+(для создания кешей)</p>

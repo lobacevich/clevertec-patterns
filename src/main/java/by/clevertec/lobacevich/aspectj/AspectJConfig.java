@@ -1,16 +1,17 @@
 package by.clevertec.lobacevich.aspectj;
 
 import by.clevertec.lobacevich.cache.Cache;
-import by.clevertec.lobacevich.cache.impl.LFUCache;
-import by.clevertec.lobacevich.cache.impl.LRUCache;
+import by.clevertec.lobacevich.cache.factory.CacheFactory;
+import by.clevertec.lobacevich.cache.factory.impl.LFUCacheFactory;
+import by.clevertec.lobacevich.cache.factory.impl.LRUCacheFactory;
 import by.clevertec.lobacevich.data.UserDto;
 import by.clevertec.lobacevich.entity.User;
 import by.clevertec.lobacevich.exception.YamlReaderException;
 import by.clevertec.lobacevich.pdf.PdfGenerator;
 import by.clevertec.lobacevich.pdf.impl.UserPdfGenerator;
 import by.clevertec.lobacevich.util.YamlReader;
-import by.clevertec.lobacevich.validator.impl.UserDtoValidator;
 import by.clevertec.lobacevich.validator.Validator;
+import by.clevertec.lobacevich.validator.impl.UserDtoValidator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,13 +26,15 @@ public class AspectJConfig {
     private final PdfGenerator pdfGenerator = UserPdfGenerator.getInstance();
 
     private Cache setCache() {
+        CacheFactory cacheFactory;
         if (YamlReader.getData().get("Cache.algorithm").equals("LRU")) {
-            return new LRUCache();
+            cacheFactory = new LRUCacheFactory();
         } else if (YamlReader.getData().get("Cache.algorithm").equals("LFU")) {
-            return new LFUCache();
+            cacheFactory = new LFUCacheFactory();
         } else {
             throw new YamlReaderException("Can't get cache algorithm");
         }
+        return cacheFactory.createCache();
     }
 
     @Around("execution(* by.clevertec.lobacevich.dao.impl.UserDaoImpl.findUserById(..))")
@@ -41,7 +44,9 @@ public class AspectJConfig {
         if (cacheUser != null) {
             return Optional.of(cacheUser);
         } else {
-            return joinPoint.proceed();
+            Optional<User> result = (Optional<User>) joinPoint.proceed();
+            result.ifPresent(cache::put);
+            return result;
         }
 
     }
